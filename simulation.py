@@ -164,22 +164,6 @@ lunches = np.random.choice(['Food Truck', 'No Food Truck'], (n, 5), p=[p_food_tr
 # what are the odds that two of them share a birthday? 
 # What if it's 20 people? 40?
 
-n = 10000
-
-n_size = 23
-
-row = np.random.choice(range(365), 23)
-row
-
-np.unique(row).size < 23
-
-birthdays = np.random.choice(range(365), (n, n_size))
-birthdays
-
-unique_bdays = [np.unique(row).size for row in birthdays]
-
-(unique_bdays < n_size).mean()
-
 # number of people = 23
 
 birthdays = np.random.randint(1,365, (10000,23))
