@@ -3,7 +3,6 @@ import numpy as np
 import math
 from scipy import stats
 import matplotlib.pyplot as plt
-import viz
 import pandas as pd
 
 # 1.) A bank found that the average number of cars waiting during the noon hour at a drive-up window follows a Poisson distribution with a mean of 2 cars. 
@@ -24,56 +23,95 @@ print(cars_at_bank_at_noon())
 
 stats.poisson(2).pmf(0)
 
+(stats.poisson(2).rvs(10000) == 0).mean()
+
 # 1.b) What is the probability that 3 or more cars come through the drive through?
 
-stats.poisson(2).sf(3)
+stats.poisson(2).sf(2)
+
+(stats.poisson(2).rvs(10000) >= 3).mean()
 
 # 1.c) How likely is it that the drive through gets at least 1 car?
 
-stats.poisson(2).pmf(1)
+stats.poisson(2).sf(0)
+(stats.poisson(2).rvs(10000) > 0).mean()
 
 # 2.) Grades of State University graduates are normally distributed with a mean of 3.0 and a standard deviation of .3. Calculate the following:
 
 # 2.a) What grade point average is required to be in the top 5% of the graduating class?
 
+gpa = np.random.normal(3, .3, (10000))
+
 stats.norm(3, .3).isf(.05)
+
+np.percentile(gpa, 95)
 
 # 2.b) What GPA constitutes the bottom 15% of the class?
 
 stats.norm(3, .3).ppf(.15)
 
+np.percentile(gpa, 15)
+
 # 2.c) An eccentric alumnus left scholarship money for students in the third decile from the bottom of their class. 
 # Determine the range of the third decile. Would a student with a 2.8 grade point average qualify for this scholarship?
+
+stats.norm(3, .3).ppf([.2,.3])
+
+# Or
 
 stats.norm(3, .3).ppf(.3)
 stats.norm(3, .3).ppf(.2)
 
+np.percentile(gpa, [20, 30])
+
 # 2.d) If I have a GPA of 3.5, what percentile am I in?
 
-stats.norm(3, .3).isf(.045)
+1 - stats.norm(3, .3).sf(3.5)
+
+# Or
+
+stats.norm(3, .3).cdf(3.5)
+
+(gpa <= 3.5).mean()
 
 # 3.) A marketing website has an average click-through rate of 2%. 
 # One day they observe 4326 visitors and 97 click-throughs. 
 # How likely is it that this many people or more click through?
 
-stats.poisson().pdf(.02)
-stats.binom(4326, .02).sf(97)
+stats.binom(4326, .02).sf(96)
 
-# 4.) You are working on some statistics homework consisting of 100 questions where all of the answers are a probability rounded to the hundreths place. Looking to save time, you put down random probabilities as the answer to each question.
+((np.random.random((10000, 4326)) <= .02).sum(axis=1) >= 97).mean()
+
+# 4.) You are working on some statistics homework consisting of 100 questions where all of the answers are a probability rounded to the hundreths place. 
+# Looking to save time, you put down random probabilities as the answer to each question.
 
 # 4.a) What is the probability that at least one of your first 60 answers is correct?
 
-stats.binom(60,.01).pmf(1)
+stats.binom(60,.01).sf(0)
 
-# 5.) The codeup staff tends to get upset when the student break area is not cleaned up. Suppose that there's a 3% chance that any one student cleans the break area when they visit it, and, on any given day, about 90% of the 3 active cohorts of 22 students visit the break area. How likely is it that the break area gets cleaned up each day? How likely is it that it goes two days without getting cleaned up? All week?
+((np.random.random((10000, 60)) <= .01).sum(axis=1) > 0).mean()
+
+# 5.) The codeup staff tends to get upset when the student break area is not cleaned up. 
+# Suppose that there's a 3% chance that any one student cleans the break area when they visit it, and, 
+# on any given day, about 90% of the 3 active cohorts of 22 students visit the break area. 
+# How likely is it that the break area gets cleaned up each day? 
+# How likely is it that it goes two days without getting cleaned up? 
+# All week?
+
+
 n_students = round(.9*66)
 
-# cleanded every day
+# cleanded each day
+
 stats.binom(n_students, .03).sf(0)
+
 # not cleaned two day
-stats.binom(n_students, .03).pmf(2)
+
+(stats.binom(n_students, .03).cdf(0))**2
+
 # not cleaned all week
-stats.binom(n_students, .03).pmf(5)
+
+(stats.binom(n_students, .03).cdf(0))**5
 
 # 6.) You want to get lunch at La Panaderia, but notice that the line is usually very long at lunchtime. 
 # After several weeks of careful observation, 
@@ -87,12 +125,13 @@ time_to_order = 2
 lunch_hour = 60
 eat_time = 15
 prep_time = 10
-wait_time = lunch_hour - mean * time_to_order - prep_time - eat_time
-people = round((lunch_hour - eat_time - prep_time) // time_to_order)
+people = round((lunch_hour - eat_time - prep_time - time_to_order) // time_to_order)
 
 
-lunch_line = stats.norm(15, 3).cdf(people)
+lunch_line = stats.norm(15,3).cdf(people)
 lunch_line
+
+(np.random.normal(15,3, 10000) <= 16).mean()
 
 # 7.) Connect to the employees database and find the average salary of current employees, along with the standard deviation. 
 # Model the distribution of employees salaries with a normal distribution and answer the following questions:
@@ -111,7 +150,7 @@ url
 
 # Read the salaries tables into a dataframes
 
-salaries_query = "SELECT * FROM salaries WHERE to_date like '9999%%'"
+salaries_query = "SELECT * FROM salaries WHERE to_date > NOW()"
 salaries = pd.read_sql(salaries_query, url) 
 (salaries.tail(25))
 
@@ -125,17 +164,32 @@ salary_distribution = stats.norm(average_salary, std_salary)
 
 percent_under_60k = salary_distribution.cdf(60000)
 
+(salaries.salary < 60000).mean()
+
 # 7.b) What percent of employees earn more than 95,000?
 
 percent_above_95k = salary_distribution.sf(95000)
 
+(salaries.salary > 95000).mean()
+
 # 7.c) What percent of employees earn between 65,000 and 80,000?
 
-percent_above_65k = salary_distribution.sf(65000)
+percent_above_65k = salary_distribution.cdf(65000)
 percent_below_80k = salary_distribution.cdf(80000)
 
 percent_between_65k_and_80k = percent_below_80k - percent_above_65k
 
+((salaries.salary > 65000) & (salaries.salary < 80000)).mean()
+
+# Or using SF
+
+percent_above_65k = salary_distribution.sf(65000)
+percent_below_80k = salary_distribution.sf(80000)
+
+percent_between_65k_and_80k = percent_above_65k - percent_below_80k
+
 # 7.d) What do the top 5% of employees make?
 
-top_5%_salary = salary_distribution.isf(.05)
+top_five_percent_salary = salary_distribution.isf(.05)
+
+salaries.salary.quantile(.95)
