@@ -31,8 +31,6 @@ pairs.three_heads.mean()
 
 flips = np.random.choice(["Heads", "Tails"], (10000, 8))
 ((flips == "Heads").sum(axis=1) == 3).mean()
-((flips == "Heads").sum(axis=1) > 3).mean()
-
 
 # More than 3 heads
 n_trials = 10000
@@ -63,7 +61,8 @@ options = ['Web Dev'] * 3 + ['Data Science']
 
 
 
-# 4.) Codeup students buy, on average, 3 poptart packages (+- 1.5) a day from the snack vending machine. If on monday the machine is restocked with 17 poptart packages, how likely is it that I will be able to buy some poptarts on Friday afternoon?
+# 4.) Codeup students buy, on average, 3 poptart packages (+- 1.5) a day from the snack vending machine. 
+# If on monday the machine is restocked with 17 poptart packages, how likely is it that I will be able to buy some poptarts on Friday afternoon?
 
 poptarts = np.round(np.random.normal(3, 1.5, (100000, 5)))
 poptarts = np.where(poptarts < 0, 0, poptarts)
