@@ -119,6 +119,8 @@ stats.binom(n_students, .03).sf(0)
 # If it takes 2 minutes for each person to order, and 10 minutes from ordering to getting your food, what is the likelihood that you have at least 15 minutes left to eat your food before you have to go back to class? 
 # Assume you have one hour for lunch, and ignore travel time to and from La Panaderia.
 
+
+
 mean = 15
 std= 3
 time_to_order = 2
@@ -126,7 +128,6 @@ lunch_hour = 60
 eat_time = 15
 prep_time = 10
 people = round((lunch_hour - eat_time - prep_time - time_to_order) // time_to_order)
-
 
 lunch_line = stats.norm(15,3).cdf(people)
 lunch_line
